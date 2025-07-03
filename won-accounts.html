@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Won Accounts - Minet Analytics</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN for charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Background gradient for the body */
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        .glass-card {
+            /* Glassmorphism effect */
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.35);
+        }
+        .chart-container {
+            position: relative;
+            height: 300px; /* Fixed height for chart canvases */
+            width: 100%;
+        }
+        .stat-card {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 sm:p-6 lg:p-8">
+    <!-- Header Section -->
+    <div class="max-w-7xl mx-auto mb-8">
+        <div class="glass-card rounded-2xl p-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <!-- Back button to navigate to index.html -->
+                    <button onclick="navigateTo('index.html')" class="p-2 rounded-xl bg-white/30 hover:bg-white/50 transition-colors">
+                        <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                    </button>
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-800">Won Accounts Analysis</h1>
+                        <p class="text-gray-600">Detailed breakdown of successful acquisitions</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <!-- Dropdown for time period selection -->
+                    <select class="px-4 py-2 rounded-xl bg-white/30 backdrop-blur-sm border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option>Last 12 Months</option>
+                        <option>Last 6 Months</option>
+                        <option>Last 3 Months</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Metrics Section -->
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8" id="key-metrics-container">
+        <!-- Stat Cards will be dynamically populated here by JavaScript -->
+        <div class="stat-card p-6 rounded-2xl text-center">
+            <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                </svg>
+            </div>
+            <h3 class="text-sm text-gray-500 font-medium mb-1">Total Cash Value</h3>
+            <p class="text-2xl font-bold text-gray-900" id="totalCashValue">$0</p>
+        </div>
+
+        <div class="stat-card p-6 rounded-2xl text-center">
+            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+            </div>
+            <h3 class="text-sm text-gray-500 font-medium mb-1">Total Clients</h3>
+            <p class="text-2xl font-bold text-gray-900" id="totalClients">0</p>
+        </div>
+
+        <div class="stat-card p-6 rounded-2xl text-center">
+            <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                </svg>
+            </div>
+            <h3 class="text-sm text-gray-500 font-medium mb-1">Best Month</h3>
+            <p class="text-2xl font-bold text-gray-900" id="bestMonthName">N/A</p>
+            <p class="text-xs text-purple-600" id="bestMonthAccounts"></p>
+        </div>
+
+        <div class="stat-card p-6 rounded-2xl text-center">
+            <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <h3 class="text-sm text-gray-500 font-medium mb-1">Top Competitor</h3>
+            <p class="text-lg font-bold text-gray-900" id="topCompetitorName">N/A</p>
+            <p class="text-xs text-orange-600" id="topCompetitorWon"></p>
+        </div>
+
+        <div class="stat-card p-6 rounded-2xl text-center">
+            <div class="w-12 h-12 bg-teal-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                <svg class="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+            </div>
+            <h3 class="text-sm text-gray-500 font-medium mb-1">Top Region</h3>
+            <p class="text-lg font-bold text-gray-900" id="topRegionName">N/A</p>
+            <p class="text-xs text-teal-600" id="topRegionAccounts"></p>
+        </div>
+    </div>
+
+    <!-- Charts Grid Section -->
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Monthly Win Rate Analysis Chart -->
+        <div class="glass-card p-6 rounded-2xl">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Monthly Win Rate Analysis</h3>
+            <div class="chart-container">
+                <canvas id="monthlyWinChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Accounts Won by Division Chart -->
+        <div class="glass-card p-6 rounded-2xl">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Accounts Won by Division</h3>
+            <div class="chart-container">
+                <canvas id="divisionWinChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Competitors and Regions Lists -->
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Competitors Analysis List -->
+        <div class="glass-card p-6 rounded-2xl">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Accounts Won from Competitors</h3>
+            <div class="space-y-4" id="competitors-list">
+                <!-- Competitor items will be dynamically populated here -->
+                <div class="flex items-center justify-between p-3 bg-white/30 rounded-xl">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+                            <span class="text-red-600 font-bold text-sm">A</span>
+                        </div>
+                        <span class="font-medium text-gray-700">AON Kenya</span>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-bold text-gray-900">68</p>
+                        <p class="text-xs text-gray-500">29% of total</p>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-white/30 rounded-xl">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <span class="text-blue-600 font-bold text-sm">M</span>
+                        </div>
+                        <span class="font-medium text-gray-700">Marsh Kenya</span>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-bold text-gray-900">42</p>
+                        <p class="text-xs text-gray-500">18% of total</p>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-white/30 rounded-xl">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                            <span class="text-green-600 font-bold text-sm">W</span>
+                        </div>
+                        <span class="font-medium text-gray-700">Willis Towers</span>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-bold text-gray-900">38</p>
+                        <p class="text-xs text-gray-500">16% of total</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accounts Won by Region List -->
+        <div class="glass-card p-6 rounded-2xl">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Accounts Won by Region</h3>
+            <div class="space-y-4" id="regions-list">
+                <!-- Region items will be dynamically populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Sample Data ---
+        // This data simulates what you might fetch from an API
+        const wonAccountsData = {
+            keyMetrics: {
+                totalCashValue: 18500000,
+                totalClients: 235,
+                bestMonth: { name: "March", accounts: 45 },
+                topCompetitor: { name: "AON", wonFrom: 68 },
+                topRegion: { name: "Coast", accounts: 89 }
+            },
+            monthlyWinRate: [
+                { month: 'Jan', won: 20, lost: 5 },
+                { month: 'Feb', won: 25, lost: 7 },
+                { month: 'Mar', won: 45, lost: 10 },
+                { month: 'Apr', won: 30, lost: 8 },
+                { month: 'May', won: 35, lost: 9 },
+                { month: 'Jun', won: 40, lost: 12 },
+                { month: 'Jul', won: 28, lost: 6 },
+                { month: 'Aug', won: 32, lost: 7 },
+                { month: 'Sep', won: 38, lost: 10 },
+                { month: 'Oct', won: 30, lost: 8 },
+                { month: 'Nov', won: 27, lost: 6 },
+                { month: 'Dec', won: 33, lost: 9 }
+            ],
+            divisionPerformance: [
+                { division: 'Enterprise', won: 90 },
+                { division: 'SME', won: 70 },
+                { division: 'Retail', won: 50 },
+                { division: 'Public Sector', won: 25 }
+            ],
+            competitors: [
+                { name: 'AON Kenya', won: 68, percentage: 29, initial: 'A', bgColor: 'bg-red-100', textColor: 'text-red-600' },
+                { name: 'Marsh Kenya', won: 42, percentage: 18, initial: 'M', bgColor: 'bg-blue-100', textColor: 'text-blue-600' },
+                { name: 'Willis Towers Watson', won: 38, percentage: 16, initial: 'W', bgColor: 'bg-green-100', textColor: 'text-green-600' },
+                { name: 'J.B. Boda & Co.', won: 30, percentage: 13, initial: 'J', bgColor: 'bg-yellow-100', textColor: 'text-yellow-600' },
+                { name: 'Britam', won: 25, percentage: 11, initial: 'B', bgColor: 'bg-indigo-100', textColor: 'text-indigo-600' },
+                { name: 'CIC Insurance', won: 20, percentage: 9, initial: 'C', bgColor: 'bg-purple-100', textColor: 'text-purple-600' },
+                { name: 'UAP Old Mutual', won: 12, percentage: 4, initial: 'U', bgColor: 'bg-pink-100', textColor: 'text-pink-600' }
+            ],
+            regions: [
+                { name: 'Coast', accounts: 89, percentage: 38, bgColor: 'bg-teal-100', textColor: 'text-teal-600' },
+                { name: 'Nairobi', accounts: 70, percentage: 30, bgColor: 'bg-cyan-100', textColor: 'text-cyan-600' },
+                { name: 'Central', accounts: 35, percentage: 15, bgColor: 'bg-orange-100', textColor: 'text-orange-600' },
+                { name: 'Western', accounts: 25, percentage: 11, bgColor: 'bg-lime-100', textColor: 'text-lime-600' },
+                { name: 'Rift Valley', accounts: 16, percentage: 7, bgColor: 'bg-fuchsia-100', textColor: 'text-fuchsia-600' }
+            ]
+        };
+
+        // Function to navigate to other pages
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+
+        // --- Chart Rendering Functions ---
+
+        /**
+         * Renders the Monthly Win Rate Analysis Line Chart.
+         */
+        function renderMonthlyWinChart() {
+            const ctx = document.getElementById('monthlyWinChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: wonAccountsData.monthlyWinRate.map(data => data.month),
+                    datasets: [
+                        {
+                            label: 'Won Accounts',
+                            data: wonAccountsData.monthlyWinRate.map(data => data.won),
+                            borderColor: 'rgb(59, 130, 246)', // Tailwind blue-500
+                            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                            tension: 0.4, // Smooth curve
+                            fill: true, // Fill area under the line
+                            pointRadius: 5,
+                            pointHoverRadius: 8
+                        },
+                        {
+                            label: 'Lost Accounts',
+                            data: wonAccountsData.monthlyWinRate.map(data => data.lost),
+                            borderColor: 'rgb(239, 68, 68)', // Tailwind red-500
+                            backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 5,
+                            pointHoverRadius: 8
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false, // Allows chart to fill its container
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#4A5568', // text-gray-700
+                                font: {
+                                    family: 'Inter'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                            borderWidth: 1,
+                            cornerRadius: 8,
+                            displayColors: true,
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: '#4A5568', // text-gray-700
+                                font: {
+                                    family: 'Inter'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)' // Light grid lines
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#4A5568', // text-gray-700
+                                font: {
+                                    family: 'Inter'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        /**
+         * Renders the Accounts Won by Division Bar Chart.
+         */
+        function renderDivisionWinChart() {
+            const ctx = document.getElementById('divisionWinChart').getContext('2d');
+            const divisionNames = wonAccountsData.divisionPerformance.map(data => data.division);
+            const wonAccounts = wonAccountsData.divisionPerformance.map(data => data.won);
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: divisionNames,
+                    datasets: [{
+                        label: 'Accounts Won',
+                        data: wonAccounts,
+                        backgroundColor: [
+                            'rgba(75, 192, 192, 0.6)', // Teal
+                            'rgba(153, 102, 255, 0.6)', // Purple
+                            'rgba(255, 159, 64, 0.6)', // Orange
+                            'rgba(54, 162, 235, 0.6)'  // Blue
+                        ],
+                        borderColor: [
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(54, 162, 235, 1)'
+                        ],
+                        borderWidth: 1,
+                        borderRadius: 8 // Rounded bars
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false // No need for legend for single dataset
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                            borderWidth: 1,
+                            cornerRadius: 8,
+                            displayColors: false,
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: '#4A5568',
+                                font: {
+                                    family: 'Inter'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#4A5568',
+                                font: {
+                                    family: 'Inter'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- Dynamic Content Population Functions ---
+
+        /**
+         * Populates the key metrics section with data.
+         */
+        function populateKeyMetrics() {
+            document.getElementById('totalCashValue').innerText = `$${(wonAccountsData.keyMetrics.totalCashValue / 1000000).toFixed(1)}M`;
+            document.getElementById('totalClients').innerText = wonAccountsData.keyMetrics.totalClients;
+            document.getElementById('bestMonthName').innerText = wonAccountsData.keyMetrics.bestMonth.name;
+            document.getElementById('bestMonthAccounts').innerText = `+${wonAccountsData.keyMetrics.bestMonth.accounts} accounts`;
+            document.getElementById('topCompetitorName').innerText = wonAccountsData.keyMetrics.topCompetitor.name;
+            document.getElementById('topCompetitorWon').innerText = `${wonAccountsData.keyMetrics.topCompetitor.won} won from`;
+            document.getElementById('topRegionName').innerText = wonAccountsData.keyMetrics.topRegion.name;
+            document.getElementById('topRegionAccounts').innerText = `${wonAccountsData.keyMetrics.topRegion.accounts} accounts`;
+        }
+
+        /**
+         * Populates the list of accounts won from competitors.
+         */
+        function populateCompetitorsList() {
+            const competitorsListDiv = document.getElementById('competitors-list');
+            competitorsListDiv.innerHTML = ''; // Clear existing static content
+
+            wonAccountsData.competitors.forEach(competitor => {
+                const itemHtml = `
+                    <div class="flex items-center justify-between p-3 bg-white/30 rounded-xl shadow-sm">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 ${competitor.bgColor} rounded-lg flex items-center justify-center">
+                                <span class="${competitor.textColor} font-bold text-sm">${competitor.initial}</span>
+                            </div>
+                            <span class="font-medium text-gray-700">${competitor.name}</span>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-gray-900">${competitor.won}</p>
+                            <p class="text-xs text-gray-500">${competitor.percentage}% of total</p>
+                        </div>
+                    </div>
+                `;
+                competitorsListDiv.insertAdjacentHTML('beforeend', itemHtml);
+            });
+        }
+
+        /**
+         * Populates the list of accounts won by region.
+         */
+        function populateRegionsList() {
+            const regionsListDiv = document.getElementById('regions-list');
+            regionsListDiv.innerHTML = ''; // Clear existing static content
+
+            wonAccountsData.regions.forEach(region => {
+                const itemHtml = `
+                    <div class="flex items-center justify-between p-3 bg-white/30 rounded-xl shadow-sm">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 ${region.bgColor} rounded-lg flex items-center justify-center">
+                                <span class="${region.textColor} font-bold text-sm">${region.name.substring(0, 2).toUpperCase()}</span>
+                            </div>
+                            <span class="font-medium text-gray-700">${region.name}</span>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-gray-900">${region.accounts}</p>
+                            <p class="text-xs text-gray-500">${region.percentage}% of total</p>
+                        </div>
+                    </div>
+                `;
+                regionsListDiv.insertAdjacentHTML('beforeend', itemHtml);
+            });
+        }
+
+        // --- Initialize all functions on window load ---
+        window.onload = function() {
+            try {
+                populateKeyMetrics();
+                renderMonthlyWinChart();
+                renderDivisionWinChart();
+                populateCompetitorsList();
+                populateRegionsList();
+            } catch (error) {
+                console.error("Error initializing dashboard:", error);
+            }
+        };
+    </script>
+</body>
+</html>

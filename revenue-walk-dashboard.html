@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Revenue Walk Dashboard</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN for charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+        /* Dynamic background gradient for a sleek look */
+        background: linear-gradient(135deg, #e0f2f7 0%, #d4eaf7 100%);
+      }
+      .glass-card {
+            background: rgba(255, 255, 255, 0.4); /* More transparent */
+            backdrop-filter: blur(15px); /* Stronger blur */
+            border: 1px solid rgba(255, 255, 255, 0.3); /* Softer border */
+            border-radius: 24px; /* More rounded */
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.17); /* Subtle shadow */
+            transition: all 0.3s ease-in-out;
+      }
+      .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.25);
+      }
+      .chart-container {
+        position: relative;
+        height: 350px; /* Taller charts for more detail */
+        width: 100%;
+      }
+       /* Custom scrollbar for better aesthetics */
+       ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(147, 197, 253, 0.7); /* Tailwind blue-300 with transparency */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(96, 165, 250, 0.8); /* Tailwind blue-400 with transparency */
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-blue-50 to-indigo-100 text-gray-800 antialiased">
+    <div class="max-w-7xl mx-auto py-8">
+        <!-- Header Section -->
+        <div class="flex items-center justify-between mb-10">
+            <div class="flex items-center text-4xl font-extrabold gap-3 text-blue-800">
+                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-dollar-sign">
+                    <line x1="12" x2="12" y1="2" y2="22"/>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+                Revenue <span class="text-blue-500">WALK</span>
+            </div>
+            <button
+                onclick="navigateTo('index.html')"
+                class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl shadow-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 transform hover:scale-105"
+            >
+                <svg
+                    class="-ml-1 mr-3 h-5 w-5"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                >
+                    <path
+                        fill-rule="evenodd"
+                        d="M10.707 4.293a1 1 0 00-1.414-1.414l-5 5a1 1 0 000 1.414l5 5a1 1 0 101.414-1.414L6.414 11H16a1 1 0 100-2H6.414l4.293-4.293z"
+                        clip-rule="evenodd"
+                    />
+                </svg>
+                Back to Dashboard
+            </button>
+        </div>
+
+        <!-- Money In, Money Out, Net Balance Summary -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <!-- Money In Card -->
+            <div class="glass-card p-6 text-center">
+                <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-green-200 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-down-right text-green-700"><path d="M7 7h10v10"/><path d="M17 7L7 17"/></svg>
+                </div>
+                <h3 class="text-lg text-gray-600 font-medium mb-2">Money In</h3>
+                <p class="text-5xl font-extrabold text-green-700" id="moneyIn">$0</p>
+                <p class="text-sm text-gray-500 mt-2">Total revenue inflow</p>
+            </div>
+
+            <!-- Money Out Card -->
+            <div class="glass-card p-6 text-center">
+                <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-red-200 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right text-red-700"><path d="M7 17h10V7"/><path d="M17 17L7 7"/></svg>
+                </div>
+                <h3 class="text-lg text-gray-600 font-medium mb-2">Money Out</h3>
+                <p class="text-5xl font-extrabold text-red-700" id="moneyOut">$0</p>
+                <p class="text-sm text-gray-500 mt-2">Total revenue outflow (churn, shrinkage)</p>
+            </div>
+
+            <!-- Net Balance Card -->
+            <div class="glass-card p-6 text-center">
+                <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-blue-200 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-scale text-blue-700"><path d="m16 16 3-3a1 1 0 0 0 0-1.41V2.36a2 2 0 0 0-3.47-1.4L12 5.64 8.47.96A2 2 0 0 0 5 2.36V11.5a1 1 0 0 0 0 1.41l3 3"/><path d="M7 17H4a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2h-3"/></svg>
+                </div>
+                <h3 class="text-lg text-gray-600 font-medium mb-2">Net Balance</h3>
+                <p class="text-5xl font-extrabold text-blue-700" id="netBalance">$0</p>
+                <p class="text-sm text-gray-500 mt-2">Overall change in revenue</p>
+            </div>
+        </div>
+
+        <!-- Main Revenue Walk Breakdown Chart -->
+        <div class="glass-card p-6 mb-10">
+            <h3 class="text-xl font-bold text-gray-800 mb-6">Quarterly Revenue Walk Breakdown</h3>
+            <div class="chart-container">
+                <canvas id="revenueWalkChart"></canvas>
+            </div>
+            <p class="text-sm text-gray-600 mt-4 text-center">Visualizing revenue changes by component over time, including new business, lost business, and organic growth.</p>
+        </div>
+
+        <!-- New Business by Division Section -->
+        <div class="glass-card p-6 mb-10">
+            <h3 class="text-xl font-bold text-gray-800 mb-6">Total New Business Per Division</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="new-business-divisions">
+                <!-- Content will be dynamically generated here -->
+            </div>
+            <p class="text-sm text-gray-600 mt-6 text-center">A detailed look into new revenue generated across all business divisions and their sub-divisions.</p>
+        </div>
+
+        <!-- Churn Analysis List -->
+        <div class="glass-card p-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-6">Recent Churn Analysis</h3>
+            <ul class="divide-y divide-gray-200/50" id="churn-list">
+                <!-- Churn items will be dynamically populated here -->
+            </ul>
+            <p class="text-sm text-gray-600 mt-6 text-center">Insights into recently lost business, including reasons for churn.</p>
+        </div>
+    </div>
+
+    <script>
+        // Helper function to navigate between pages
+        function navigateTo(url) {
+            window.location.href = url;
+        }
+
+        // --- Sample Data for Revenue Walk Dashboard ---
+        const revenueWalkData = {
+            summary: {
+                moneyIn: 4500000, // Example: New Business + Organic Growth
+                moneyOut: 1200000, // Example: Lost Business + Shrinkage
+                netBalance: 3300000 // moneyIn - moneyOut
+            },
+            quarterlyRevenueWalk: [
+                { quarter: 'Q1 2024', beginningBalance: 10000000, moneyIn: 1000000, moneyOut: 300000, endingBalance: 10700000 },
+                { quarter: 'Q2 2024', beginningBalance: 10700000, moneyIn: 1200000, moneyOut: 400000, endingBalance: 11500000 },
+                { quarter: 'Q3 2024', beginningBalance: 11500000, moneyIn: 1500000, moneyOut: 500000, endingBalance: 12500000 },
+                { quarter: 'Q4 2024', beginningBalance: 12500000, moneyIn: 800000, moneyOut: 600000, endingBalance: 12700000 }
+            ],
+            newBusinessByDivision: [
+                {
+                    name: 'Employee Benefits',
+                    total: 1000000,
+                    iconBg: 'bg-indigo-100',
+                    iconText: 'text-indigo-700',
+                    subDivisions: [
+                        { name: 'Life', value: 300000 },
+                        { name: 'Pensions', value: 250000 },
+                        { name: 'MUF', value: 150000 },
+                        { name: 'HealthCare', value: 200000 },
+                        { name: 'Wellness', value: 50000 },
+                        { name: 'IMB', value: 50000 }
+                    ]
+                },
+                {
+                    name: 'Minet Risk Services',
+                    total: 800000,
+                    iconBg: 'bg-red-100',
+                    iconText: 'text-red-700',
+                    subDivisions: [
+                        { name: 'COP', value: 200000 },
+                        { name: 'Risk', value: 200000 },
+                        { name: 'Claim Settlement', value: 150000 },
+                        { name: 'Coast', value: 100000 },
+                        { name: 'Western', value: 150000 }
+                    ]
+                },
+                {
+                    name: 'MMC',
+                    total: 400000,
+                    iconBg: 'bg-green-100',
+                    iconText: 'text-green-700',
+                    subDivisions: [
+                        { name: 'TSC', value: 250000 },
+                        { name: 'NPS', value: 150000 }
+                    ]
+                },
+                {
+                    name: 'Retail & SMEs',
+                    total: 600000,
+                    iconBg: 'bg-yellow-100',
+                    iconText: 'text-yellow-700',
+                    subDivisions: [] // No explicit sub-divisions given
+                },
+                {
+                    name: 'Consulting',
+                    total: 300000,
+                    iconBg: 'bg-purple-100',
+                    iconText: 'text-purple-700',
+                    subDivisions: [{ name: 'Actuarial', value: 300000 }]
+                },
+                {
+                    name: 'Reinsurance',
+                    total: 200000,
+                    iconBg: 'bg-blue-100',
+                    iconText: 'text-blue-700',
+                    subDivisions: [] // No explicit sub-divisions given
+                }
+            ],
+            churnAnalysis: [
+                { customer: 'Acme Corp', reason: 'Price sensitivity', amount: 150000 },
+                { customer: 'Globex Inc.', reason: 'Service dissatisfaction', amount: 100000 },
+                { customer: 'Soylent Corp', reason: 'Competitor offering', amount: 200000 },
+                { customer: 'Initech', reason: 'Acquisition/Merger', amount: 80000 },
+                { customer: 'Umbrella Corp', reason: 'Strategic shift', amount: 120000 }
+            ]
+        };
+
+        // --- Chart Rendering Functions ---
+
+        /**
+         * Renders the Quarterly Revenue Walk Breakdown Chart.
+         */
+        function renderRevenueWalkChart() {
+            const ctx = document.getElementById('revenueWalkChart').getContext('2d');
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: revenueWalkData.quarterlyRevenueWalk.map(d => d.quarter),
+                    datasets: [
+                        {
+                            label: 'Beginning Balance',
+                            data: revenueWalkData.quarterlyRevenueWalk.map(d => d.beginningBalance),
+                            backgroundColor: 'rgba(100, 116, 139, 0.7)', // Tailwind slate-500
+                            stack: 'stack0'
+                        },
+                        {
+                            label: 'Money In',
+                            data: revenueWalkData.quarterlyRevenueWalk.map(d => d.moneyIn),
+                            backgroundColor: 'rgba(34, 197, 94, 0.7)', // Tailwind green-500
+                            stack: 'stack1'
+                        },
+                        {
+                            label: 'Money Out',
+                            data: revenueWalkData.quarterlyRevenueWalk.map(d => -d.moneyOut), // Negative for outflow
+                            backgroundColor: 'rgba(239, 68, 68, 0.7)', // Tailwind red-500
+                            stack: 'stack1'
+                        },
+                        {
+                            label: 'Ending Balance',
+                            data: revenueWalkData.quarterlyRevenueWalk.map(d => d.endingBalance),
+                            backgroundColor: 'rgba(59, 130, 246, 0.7)', // Tailwind blue-500
+                            stack: 'stack2'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#4A5568', // text-gray-700
+                                font: { family: 'Inter' }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                            borderWidth: 1,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: false, // Ensure bars are not fully stacked
+                            ticks: { color: '#4A5568', font: { family: 'Inter' } },
+                            grid: { color: 'rgba(0, 0, 0, 0.1)' }
+                        },
+                        y: {
+                            stacked: false,
+                            ticks: {
+                                color: '#4A5568',
+                                font: { family: 'Inter' },
+                                callback: function(value) {
+                                    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', notation: 'compact', compactDisplay: 'short' }).format(value);
+                                }
+                            },
+                            grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- Dynamic Content Population Functions ---
+
+        /**
+         * Populates the top summary metrics (Money In, Money Out, Net Balance).
+         */
+        function populateSummaryMetrics() {
+            document.getElementById('moneyIn').innerText = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(revenueWalkData.summary.moneyIn);
+            document.getElementById('moneyOut').innerText = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(revenueWalkData.summary.moneyOut);
+            document.getElementById('netBalance').innerText = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(revenueWalkData.summary.netBalance);
+        }
+
+        /**
+         * Populates the "Total New Business Per Division" section.
+         */
+        function populateNewBusinessByDivision() {
+            const container = document.getElementById('new-business-divisions');
+            container.innerHTML = ''; // Clear existing content
+
+            revenueWalkData.newBusinessByDivision.forEach((division, index) => {
+                const divisionCard = document.createElement('div');
+                divisionCard.className = 'glass-card p-6 cursor-pointer';
+                divisionCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-4" onclick="toggleSubDivisions('sub-division-${index}')">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 ${division.iconBg} rounded-lg flex items-center justify-center">
+                                <span class="${division.iconText} font-bold text-lg">${division.name.substring(0, 1)}</span>
+                            </div>
+                            <span class="font-bold text-lg text-gray-800">${division.name}</span>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-green-700 text-xl">${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', notation: 'compact', compactDisplay: 'short' }).format(division.total)}</p>
+                            <svg class="w-5 h-5 text-gray-500 transform transition-transform duration-300 ml-2" id="toggle-icon-${index}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div id="sub-division-${index}" class="space-y-2 pl-4 border-l-2 border-blue-200 hidden">
+                        <!-- Sub-divisions will be injected here -->
+                    </div>
+                `;
+                container.appendChild(divisionCard);
+
+                const subDivisionsContainer = document.getElementById(`sub-division-${index}`);
+                if (division.subDivisions && division.subDivisions.length > 0) {
+                    division.subDivisions.forEach(sub => {
+                        const subItem = document.createElement('div');
+                        subItem.className = 'flex items-center justify-between text-gray-700 text-sm py-1';
+                        subItem.innerHTML = `
+                            <span>${sub.name}</span>
+                            <span class="font-semibold">${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(sub.value)}</span>
+                        `;
+                        subDivisionsContainer.appendChild(subItem);
+                    });
+                } else {
+                    const noSubItem = document.createElement('div');
+                    noSubItem.className = 'text-center text-gray-500 text-sm italic py-2';
+                    noSubItem.innerText = 'No specific sub-divisions listed.';
+                    subDivisionsContainer.appendChild(noSubItem);
+                }
+            });
+        }
+
+        /**
+         * Toggles the visibility of sub-divisions in the "New Business Per Division" section.
+         * @param {string} id - The ID of the sub-division container to toggle.
+         */
+        function toggleSubDivisions(id) {
+            const element = document.getElementById(id);
+            const icon = document.getElementById(`toggle-icon-${id.split('-')[2]}`);
+            if (element.classList.contains('hidden')) {
+                element.classList.remove('hidden');
+                icon.classList.remove('rotate-0');
+                icon.classList.add('rotate-180');
+            } else {
+                element.classList.add('hidden');
+                icon.classList.remove('rotate-180');
+                icon.classList.add('rotate-0');
+            }
+        }
+
+        /**
+         * Populates the churn analysis list.
+         */
+        function populateChurnAnalysis() {
+            const churnList = document.getElementById('churn-list');
+            churnList.innerHTML = ''; // Clear existing content
+
+            revenueWalkData.churnAnalysis.forEach(item => {
+                const listItem = document.createElement('li');
+                listItem.className = 'py-3 flex justify-between items-center text-gray-700';
+                listItem.innerHTML = `
+                    <span>${item.customer} <span class="text-sm text-gray-500">(Reason: ${item.reason})</span></span>
+                    <span class="font-semibold text-red-600">${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(-item.amount)}</span>
+                `;
+                churnList.appendChild(listItem);
+            });
+        }
+
+        // --- Initialize all functions on window load ---
+        window.onload = function() {
+            try {
+                populateSummaryMetrics();
+                renderRevenueWalkChart();
+                populateNewBusinessByDivision();
+                populateChurnAnalysis();
+            } catch (error) {
+                console.error("Error initializing Revenue Walk dashboard:", error);
+            }
+        };
+    </script>
+</body>
+</html>
